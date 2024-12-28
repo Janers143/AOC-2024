@@ -38,3 +38,6 @@ gen_struct/
 
 # Private token
 .token
+
+# Virtual environment
+venv/
