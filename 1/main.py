@@ -7,17 +7,17 @@ import numpy as np
 # Load and configure the logger
 LOG_FORMAT = "%(levelname)s - %(name)s : %(message)s"
 logging.basicConfig(
-    level=logging.DEBUG, handlers=[logging.StreamHandler()], format=LOG_FORMAT
+    level=logging.INFO, handlers=[logging.StreamHandler()], format=LOG_FORMAT
 )
 logger = logging.getLogger(__name__)
 
 
-def read_input(file: str) -> tuple[list, list]:
+def read_input(file: str) -> tuple[np.ndarray, np.ndarray]:
     """
     Read the input file and format the content to a tuple of lists.
 
     :param str file: The input file name
-    :return tuple[list, list]: The formatted output
+    :return tuple[np.ndarray, np.ndarray]: The formatted output
     """
     # Open the file
     with open(file, "r", encoding="utf-8") as in_file:
@@ -32,11 +32,15 @@ def read_input(file: str) -> tuple[list, list]:
         left.append(left_pos)
         right.append(right_pos)
 
-    # Log the formatted input
-    logger.debug("Left list : %s", left)
-    logger.debug("Right list : %s", right)
+    # Create numpy arrays for both lists (easier to manipulate)
+    np_left = np.array(left)
+    np_right = np.array(right)
 
-    return (left, right)
+    # Log the formatted input
+    logger.debug("Left list : %s", np_left)
+    logger.debug("Right list : %s", np_right)
+
+    return (np_left, np_right)
 
 
 def puzzle1(file: str) -> int:
@@ -49,14 +53,14 @@ def puzzle1(file: str) -> int:
     # Load the input
     left, right = read_input(file)
 
-    # Sort the list and create a numpy array
-    np_left = np.array(sorted(left))
-    np_right = np.array(sorted(right))
-    logger.debug("Numpy array sorted for left list: %s", np_left)
-    logger.debug("Numpy array sorted for right list: %s", np_right)
+    # Sort the numpy arrays
+    sorted_left = np.sort(left)
+    sorted_right = np.sort(right)
+    logger.debug("Numpy array sorted for left list: %s", sorted_left)
+    logger.debug("Numpy array sorted for right list: %s", sorted_right)
 
     # Get an absolute difference array from the 2 lists
-    np_abs_diff = np.abs(np_left - np_right)
+    np_abs_diff = np.abs(sorted_left - sorted_right)
     logger.debug("Absolute difference array: %s", np_abs_diff)
     # Get the sum of all the differences
     np_sum = np.sum(np_abs_diff)
@@ -75,9 +79,6 @@ def puzzle2(file: str) -> int:
     # Load the input
     left, right = read_input(file)
 
-    # Create a numpy array from the right list
-    np_right = np.array(right)
-
     # Start the similarity score at 0
     similarity_score = 0
 
@@ -86,7 +87,7 @@ def puzzle2(file: str) -> int:
         # Extract all the positions from the right list that are equal
         # to the current left position and count them
         # shape[0] is the same as the len of a 1D-array
-        right_pos_count = np.extract(np_right == left_pos, np_right).shape[0]
+        right_pos_count = np.extract(right == left_pos, right).shape[0]
         logger.debug(
             "Appearances of the left position '%s' in the right list : %s",
             left_pos,
