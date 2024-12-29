@@ -7,7 +7,7 @@ import numpy as np
 # Load and configure the logger
 LOG_FORMAT = "%(levelname)s - %(name)s : %(message)s"
 logging.basicConfig(
-    level=logging.INFO, handlers=[logging.StreamHandler()], format=LOG_FORMAT
+    level=logging.DEBUG, handlers=[logging.StreamHandler()], format=LOG_FORMAT
 )
 logger = logging.getLogger(__name__)
 
@@ -46,6 +46,7 @@ def puzzle1(file: str) -> int:
     :param str file: The input file
     :return int: The puzzle solution for the given input
     """
+    # Load the input
     left, right = read_input(file)
 
     # Sort the list and create a numpy array
@@ -65,7 +66,40 @@ def puzzle1(file: str) -> int:
 
 
 def puzzle2(file: str) -> int:
-    return ""
+    """
+    Solves the second puzzle.
+
+    :param str file: The input file
+    :return int: The puzzle solution for the given input
+    """
+    # Load the input
+    left, right = read_input(file)
+
+    # Create a numpy array from the right list
+    np_right = np.array(right)
+
+    # Start the similarity score at 0
+    similarity_score = 0
+
+    # Go through each element of the left list
+    for left_pos in left:
+        # Extract all the positions from the right list that are equal
+        # to the current left position and count them
+        # shape[0] is the same as the len of a 1D-array
+        right_pos_count = np.extract(np_right == left_pos, np_right).shape[0]
+        logger.debug(
+            "Appearances of the left position '%s' in the right list : %s",
+            left_pos,
+            right_pos_count,
+        )
+
+        # Calculate the similarity score
+        similarity_score += left_pos * right_pos_count
+        logger.debug("Current similarity score is : %s", similarity_score)
+
+    logger.debug("Final similarity score : %s", similarity_score)
+
+    return similarity_score
 
 
 def main() -> None:
