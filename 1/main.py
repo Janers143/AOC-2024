@@ -4,7 +4,7 @@ import logging
 
 import numpy as np
 
-# Load the logger
+# Load and configure the logger
 LOG_FORMAT = "%(levelname)s - %(name)s : %(message)s"
 logging.basicConfig(
     level=logging.INFO, handlers=[logging.StreamHandler()], format=LOG_FORMAT
@@ -33,8 +33,8 @@ def read_input(file: str) -> tuple[list, list]:
         right.append(right_pos)
 
     # Log the formatted input
-    logging.debug("Left list : %s", left)
-    logging.debug("Right list : %s", right)
+    logger.debug("Left list : %s", left)
+    logger.debug("Right list : %s", right)
 
     return (left, right)
 
@@ -65,7 +65,7 @@ def puzzle1(file: str) -> int:
 
 
 def puzzle2(file: str) -> int:
-    pass
+    return ""
 
 
 def main() -> None:
