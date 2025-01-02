@@ -7,7 +7,7 @@ from os.path import join as pathjoin
 # Load and configure the logger
 LOG_FORMAT = "%(levelname)s - %(name)s : %(message)s"
 logging.basicConfig(
-    level=logging.INFO, handlers=[logging.StreamHandler()], format=LOG_FORMAT
+    level=logging.DEBUG, handlers=[logging.StreamHandler()], format=LOG_FORMAT
 )
 logger = logging.getLogger(__name__)
 
@@ -42,6 +42,20 @@ def read_input(file: str) -> list[list[int]]:
     return reports
 
 
+def is_safe(report: list[int]) -> bool:
+    """
+    Check if a report is safe.
+
+    A report is safe if the list of levels it contains is stricly ascending or
+    descending and that the difference between two adjacent levels is between
+    1 and 3.
+
+    :param list[int] report: The list of levels of the report
+    :return bool: `True` if the report is safe, `False` if not.
+    """
+    return True
+
+
 def puzzle1(file: str) -> int:
     """
     Solves the first puzzle.
@@ -50,10 +64,17 @@ def puzzle1(file: str) -> int:
     :return int: The puzzle solution for the given input
     """
     # Load the input
-    _ = read_input(file)
+    reports = read_input(file)
+
+    # Go through each report of the list
+    safe_reports = 0
+    for report in reports:
+        if is_safe(report):
+            logger.debug("Report %s is safe", report)
+            safe_reports += 1
 
     # Return the solution
-    return 0
+    return safe_reports
 
 
 def puzzle2(file: str) -> int:
