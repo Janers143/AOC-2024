@@ -1,6 +1,8 @@
 """Day 1 puzzle solutions."""
 
 import logging
+from os.path import dirname
+from os.path import join as pathjoin
 
 import numpy as np
 
@@ -10,6 +12,11 @@ logging.basicConfig(
     level=logging.INFO, handlers=[logging.StreamHandler()], format=LOG_FORMAT
 )
 logger = logging.getLogger(__name__)
+
+# Constants for the input paths
+INPUT_FOLDER = pathjoin(dirname(__file__), "inputs")
+SMALL_INPUT = pathjoin(INPUT_FOLDER, "small_input")
+INPUT = pathjoin(INPUT_FOLDER, "input")
 
 
 def read_input(file: str) -> tuple[np.ndarray, np.ndarray]:
@@ -108,11 +115,11 @@ def main() -> None:
     Main function
     """
     ### First part of the problem
-    res1 = puzzle1("input")
+    res1 = puzzle1(INPUT)
     print(f"First part result : {res1}")
 
     ### Second part of the problem
-    res2 = puzzle2("input")
+    res2 = puzzle2(INPUT)
     print(f"Second part result : {res2}")
 
 
