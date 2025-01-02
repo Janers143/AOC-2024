@@ -7,7 +7,7 @@ from os.path import join as pathjoin
 # Load and configure the logger
 LOG_FORMAT = "%(levelname)s - %(name)s : %(message)s"
 logging.basicConfig(
-    level=logging.DEBUG, handlers=[logging.StreamHandler()], format=LOG_FORMAT
+    level=logging.INFO, handlers=[logging.StreamHandler()], format=LOG_FORMAT
 )
 logger = logging.getLogger(__name__)
 
@@ -53,6 +53,45 @@ def is_safe(report: list[int]) -> bool:
     :param list[int] report: The list of levels of the report
     :return bool: `True` if the report is safe, `False` if not.
     """
+    # If the report contains only 1 level it is safe
+    report_len = len(report)
+    if report_len < 2:
+        return True
+
+    # Start the level counters
+    level_1 = 0
+    level_2 = 1
+
+    # Set up the expected order of the list from the 2 first elements
+    # (1 when ascending and -1 when descending)
+    if report[level_1] <= report[level_2]:
+        order = 1
+    else:
+        order = -1
+
+    # Go through each level
+    while level_2 < report_len:
+        # Calculate the difference between the 2 adjacent levels
+        level_diff = report[level_2] - report[level_1]
+        # Check that the order is respected (multiplication by order)
+        # and that the difference is between 1 and 3
+        if not 1 <= level_diff * order <= 3:
+            logger.debug(
+                "Report %s is unsafe at adjacent levels %s - %s "
+                "(expected order was %s)",
+                report,
+                report[level_1],
+                report[level_2],
+                "ascending" if order == 1 else "descending",
+            )
+            # If a rule is not respected, return False
+            return False
+
+        # Increment levels
+        level_1 += 1
+        level_2 += 1
+
+    # The rules are respected for all adjacent levels in the report, return True
     return True
 
 
@@ -96,7 +135,7 @@ def main() -> None:
     Main function
     """
     ### First part of the problem
-    res1 = puzzle1(SMALL_INPUT)
+    res1 = puzzle1(INPUT)
     print(f"First part result : {res1}")
 
     ### Second part of the problem
