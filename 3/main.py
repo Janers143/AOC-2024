@@ -15,7 +15,14 @@ logger = logging.getLogger(__name__)
 # Constants for the input paths
 INPUT_FOLDER = pathjoin(dirname(__file__), "inputs")
 SMALL_INPUT = pathjoin(INPUT_FOLDER, "small_input")
+SMALL_INPUT_2 = pathjoin(INPUT_FOLDER, "small_input2")
 INPUT = pathjoin(INPUT_FOLDER, "input")
+
+# Puzzle constants
+MUL_START = "mul("
+MUL_END = ")"
+DO_STR = "do()"
+DONT_STR = "don't()"
 
 
 def read_input(file: str) -> list[str]:
@@ -32,27 +39,23 @@ def read_input(file: str) -> list[str]:
     return lines
 
 
-def get_mul_strings(lines: list[str]) -> list[str]:
-    """
-    Find mul strings in the input (a list of strings) by using a regex.
-
-    A mul string is a string formated as `mul(a,b)` with a and b being two
-    numbers going from 1 to 999.
+def get_regex_matches(lines: list[str], regex: str) -> list[str]:
+    """Get the list of all the substrings that match the regex in the given lines.
 
     :param list[str] lines: The list of lines of the input
-    :return list[str]: The list of found mul strings
+    :param str regex: The regex to match
+    :return list[str]: The list of substrings that match the regex
     """
-    regex = r"mul\(\d{1,3},\d{1,3}\)"
+    substrings_match = []
 
-    mul_strings = []
     # Go through each line of the input
     for line in lines:
         # Get all the substrings that match the regex
         regex_matchs = re.compile(regex).findall(line)
-        # Add the list of mul strings in the line to the complete list
-        mul_strings.extend(regex_matchs)
+        # Add the list of substrings in the line to the complete list
+        substrings_match.extend(regex_matchs)
 
-    return mul_strings
+    return substrings_match
 
 
 def calculate_mul_result(mul_string: str) -> int:
@@ -64,7 +67,7 @@ def calculate_mul_result(mul_string: str) -> int:
     """
     logger.debug("Calculating %s", mul_string)
     val_1, val_2 = [
-        int(value) for value in mul_string.lstrip("mul(").rstrip(")").split(",")
+        int(value) for value in mul_string.lstrip(MUL_START).rstrip(MUL_END).split(",")
     ]
     result = val_1 * val_2
     logger.debug("The result of %s * %s is %s", val_1, val_2, result)
@@ -81,8 +84,11 @@ def puzzle1(file: str) -> int:
     # Load the input
     input_lines = read_input(file)
 
+    # The regex that matches mul strings
+    regex = r"mul\(\d{1,3},\d{1,3}\)"
+
     # Get the multiplication strings from the input lines
-    mul_strings = get_mul_strings(input_lines)
+    mul_strings = get_regex_matches(input_lines, regex)
     logger.debug("Found %s mul strings in the given input", len(mul_strings))
 
     sum_of_mul = 0
@@ -105,10 +111,39 @@ def puzzle2(file: str) -> int:
     :return int: The puzzle solution for the given input
     """
     # Load the input
-    _ = read_input(file)
+    input_lines = read_input(file)
+
+    # The regex that matches mul, dos and don'ts strings
+    regex = r"mul\(\d{1,3},\d{1,3}\)|do\(\)|don't\(\)"
+
+    # Get the multiplication strings from the input lines
+    mul_dos_donts = get_regex_matches(input_lines, regex)
+    logger.debug("Found %s instructions in the given input", len(mul_dos_donts))
+
+    sum_of_mul = 0
+    enabled = True
+    # Go through each instruction of the list
+    for instruction in mul_dos_donts:
+        if instruction == DO_STR:
+            # The instruction is do(), enable the mul calculation
+            enabled = True
+            logger.debug("The mul calculation is ENABLED")
+        elif instruction == DONT_STR:
+            # The instruction is don't(), disable the mul calculation
+            enabled = False
+            logger.debug("The mul calculation is DISABLED")
+        elif enabled:
+            # The instruction is a mul() and the calculation is enabled
+            # Calculate the multiplication result
+            mul_result = calculate_mul_result(instruction)
+            # Add the result of the multiplication to the total sum
+            sum_of_mul += mul_result
+        else:
+            # The instruction is a mul() but the calculation is disabled
+            logger.debug("The mul() instruction '%s' is skipped", instruction)
 
     # Return the solution
-    return 0
+    return sum_of_mul
 
 
 def main() -> None:
@@ -120,7 +155,7 @@ def main() -> None:
     print(f"First part result : {res1}")
 
     ### Second part of the problem
-    res2 = puzzle2(SMALL_INPUT)
+    res2 = puzzle2(INPUT)
     print(f"Second part result : {res2}")
 
 
