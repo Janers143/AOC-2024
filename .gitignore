@@ -41,3 +41,6 @@ gen_struct/
 
 # Virtual environment
 venv/
+
+# Personal input according to AOC License
+**/inputs/input
