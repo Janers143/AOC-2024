@@ -7,7 +7,7 @@ from os.path import join as pathjoin
 # Load and configure the logger
 LOG_FORMAT = "%(levelname)s - %(name)s : %(message)s"
 logging.basicConfig(
-    level=logging.DEBUG, handlers=[logging.StreamHandler()], format=LOG_FORMAT
+    level=logging.INFO, handlers=[logging.StreamHandler()], format=LOG_FORMAT
 )
 logger = logging.getLogger(__name__)
 
