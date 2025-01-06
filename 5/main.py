@@ -7,7 +7,7 @@ from os.path import join as pathjoin
 # Load and configure the logger
 LOG_FORMAT = "%(levelname)s - %(name)s : %(message)s"
 logging.basicConfig(
-    level=logging.DEBUG, handlers=[logging.StreamHandler()], format=LOG_FORMAT
+    level=logging.INFO, handlers=[logging.StreamHandler()], format=LOG_FORMAT
 )
 logger = logging.getLogger(__name__)
 
@@ -113,6 +113,39 @@ def get_updates_score(updates: list[int]) -> int:
     return updates_score
 
 
+def reorder_update(
+    ordering_rules: dict[int, list[int]], update: list[int]
+) -> list[int]:
+    """
+    Re-orders the update accordingly to ordering rules.
+
+    :param dict[int, list[int]] ordering_rules: The ordering rule
+    :param list[int] update: The update to re-order
+    :return list[int]: The ordered update
+    """
+    ordered_update = [update[0]]
+    # Go through each page of the update
+    for page in update[1:]:
+        placed = False
+        # Get the list of pages the current page can not preceed
+        cant_preceed_list = ordering_rules.get(page, [])
+        # Go through each element of the ordered list
+        for page_id, ordered_page in enumerate(ordered_update):
+            # Check if the page can be placed at the current position
+            if not ordered_page in cant_preceed_list:
+                # The current page can be placed at this position
+                ordered_update.insert(page_id, page)
+                placed = True
+                break
+
+        # Check if the page has been placed in the ordered list
+        if not placed:
+            # The page has not been placed yet, put it at the end of the update
+            ordered_update.append(page)
+
+    return ordered_update
+
+
 def puzzle1(file: str) -> int:
     """
     Solves the first puzzle.
@@ -142,10 +175,25 @@ def puzzle2(file: str) -> int:
     :return int: The puzzle solution for the given input
     """
     # Load the input
-    _ = read_input(file)
+    ordering_rules, updates = read_input(file)
+
+    invalid_updates = []
+    # Go through each update
+    for update in updates:
+        if not check_update_validity(ordering_rules, update):
+            # The update is valid, add it to the valid updates list
+            invalid_updates.append(update)
+
+    reordered_updates = []
+    # Go through each invalid update
+    for update in invalid_updates:
+        # Re-order the invalid update
+        reordered_update = reorder_update(ordering_rules, update)
+        logger.debug("%s has been re-ordered to %s", update, reordered_update)
+        reordered_updates.append(reordered_update)
 
     # Return the solution
-    return 0
+    return get_updates_score(reordered_updates)
 
 
 def main() -> None:
@@ -157,7 +205,7 @@ def main() -> None:
     print(f"First part result : {res1}")
 
     ### Second part of the problem
-    res2 = puzzle2(SMALL_INPUT)
+    res2 = puzzle2(INPUT)
     print(f"Second part result : {res2}")
 
 
